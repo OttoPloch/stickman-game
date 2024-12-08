@@ -21,8 +21,6 @@ void Level::create(settings& settings, std::string folderPath, sf::RenderWindow&
 		{"cube", cubeTexture}
 	};
 
-	// final test comment
-
 	paperTexCoords = { sf::Vector2u(0, 0), sf::Vector2u(750, 0), sf::Vector2u(750, 1000), sf::Vector2u(0, 1000) };
 
 	IDValue = 0.f;
