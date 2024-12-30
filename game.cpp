@@ -13,7 +13,7 @@ void Game::start() {
 
 	inputManager.create();
 
-	editingVisuals.create(level.paperTexCoords, level.textures);
+	editingVisuals.create(level.paperTexCoords, level.textures, level.camera);
 
 	incrementingLevel = false;
 	switchingToEdit = false;
@@ -211,7 +211,10 @@ void Game::events() {
 					if (editing) {
 						if (sf::Mouse::getPosition(window).x < window.getSize().x && sf::Mouse::getPosition(window).x > 0) {
 							if (sf::Mouse::getPosition(window).y < window.getSize().y && sf::Mouse::getPosition(window).y > 0) {
-								level.levelEditor.click(window, level.camera, nullptr, level.checkMouseBeingCollision(level.levelEditor.currentEditTool, window));
+								Paper* collidedPaper = level.checkMousePaperCollision(window, settings);
+								Being* collidedBeing = level.checkMouseBeingCollision(level.levelEditor.currentEditTool, window);
+								
+								level.levelEditor.click(window, level.camera, collidedPaper, collidedBeing);
 
 								if (!level.levelEditor.erasing) {
 									editingVisuals.addItemToDraw(level.levelEditor.currentEditTool);
@@ -220,18 +223,18 @@ void Game::events() {
 									sf::Vector2f deleteSpritePos = sf::Vector2f(-69.696969f, -69.696969f);
 									
 									if (level.levelEditor.currentEditTool == "paper") {
-										if (level.checkMousePaperCollision(window) != nullptr) {
-											deleteSpritePos = level.checkMousePaperCollision(window)->pos;
+										if (collidedPaper != nullptr) {
+											deleteSpritePos = collidedPaper->pos;
 										}
 									}
 									else {
-										if (level.checkMouseBeingCollision(level.levelEditor.currentEditTool, window) != nullptr) {
-										deleteSpritePos = level.checkMouseBeingCollision(level.levelEditor.currentEditTool, window)->mySprite.getPosition();
+										if (collidedBeing != nullptr) {
+										deleteSpritePos = collidedBeing->mySprite.getPosition();
 										}
 									}
 
-									if (deleteSpritePos != sf::Vector2f(-69.696969f, -69.696969f)) {
-										editingVisuals.addXToDraw(deleteSpritePos);
+									if (deleteSpritePos != sf::Vector2f(-69.696969f, -69.696969f) && level.levelEditor.currentEditTool != "player") {
+										editingVisuals.addXToDraw(deleteSpritePos, settings);
 									}
 								}
 							}
@@ -248,12 +251,12 @@ void Game::tick(float dt) {
 	level.update(window, editing);
 }
 
-void Game::render(float dt) {
+void Game::render(float dt)  {
 	window.clear();
 
 	level.drawBackground(window);
 
-	level.draw(window, dt, editing);
+	level.draw(window, dt, editing, settings);
 
 	if (editing) {
 		editingVisuals.updateAndDraw(window, level.camera, level.levelEditor.currentEditTool, level.levelEditor.getPaperDimensions(), level.levelEditor.getRotationValue(), level.levelEditor.erasing);
@@ -275,6 +278,7 @@ void Game::levelIncrement() {
 	
 	if (editing) {
 		level.levelEditor.updateFiles("./levels/level " + std::to_string(settings.levelIndex) + "/", settings);
+		editingVisuals.clearDraws();
 	}
 	
 	settings.levelIndex++;

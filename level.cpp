@@ -155,11 +155,13 @@ void Level::drawBackground(sf::RenderWindow& window) {
 	window.draw(&tabletopVertices[0], tabletopVertices.size(), sf::Quads, tabletopStates);
 }
 
-void Level::draw(sf::RenderWindow& window, float dt, bool& editing) {
+void Level::draw(sf::RenderWindow& window, float dt, bool& editing, settings& settings) {
 	// called update because this affects rendering, not part of gameplay
 	camera.update(window, dt, mySettings);
 
-	window.draw(&paperVertices[0], paperVertices.size(), sf::Quads, paperStates);
+	if (paperVertices.size() > 0) {
+		window.draw(&paperVertices[0], paperVertices.size(), sf::Quads, paperStates);
+	}
 
 	player.draw(window, showRects);
 	
@@ -174,6 +176,21 @@ void Level::draw(sf::RenderWindow& window, float dt, bool& editing) {
 	}
 
 	if (editing) {
+		if (levelEditor.erasing && papers.size() > 0) {
+			for (int i = 0; i < papers.size(); i++) {
+				sf::CircleShape circle(settings.paperEraseCircleRad);
+
+				circle.setOrigin(settings.paperEraseCircleRad, settings.paperEraseCircleRad);
+				circle.setFillColor(sf::Color::Transparent);
+				circle.setOutlineColor(sf::Color::Red);
+				circle.setOutlineThickness(5.f);
+
+				circle.setPosition(papers[i].pos);
+
+				window.draw(circle);
+			}
+		}
+
 		editor.draw(window);
 	}
 }
@@ -243,19 +260,81 @@ void Level::transitionStep(float dt) {
 	transitionRect.setFillColor(sf::Color(0, 0, 0, transitionRectOpacity));
 }
 
-Paper* Level::checkMousePaperCollision(sf::RenderWindow& window) {
+Paper* Level::checkMousePaperCollision(sf::RenderWindow& window, settings& settings) {
 	int mouseX = (int)camera.getTopLeft().x + ((float)sf::Mouse::getPosition(window).x / window.getSize().x * 1.f) * camera.view.getSize().x;
 	int mouseY = (int)camera.getTopLeft().y + ((float)sf::Mouse::getPosition(window).y / window.getSize().y * 1.f) * camera.view.getSize().y;
 
 	for (int i = 0; i < papers.size(); i++) {
 		bool mouseCollides = false;
-		
+
+		float dist = sqrt(pow(papers[i].pos.x - mouseX, 2) + pow(papers[i].pos.y - mouseY, 2));
+
+		if (dist < settings.paperEraseCircleRad) {
+			mouseCollides = true;
+		}
+
 		if (mouseCollides) {
 			return &papers[i];
 		}
 	}
 
 	return nullptr;
+
+	//for (int i = 0; i < papers.size(); i++) {
+	//	std::array<sf::Vector2f, 3> topLeftTri = { papers[i].orderedVertices[0], papers[i].orderedVertices[1], sf::Vector2f(papers[i].boundingBox[1], papers[i].boundingBox[0])};
+	//	std::array<sf::Vector2f, 3> topRightTri = { papers[i].orderedVertices[2], papers[i].orderedVertices[0], sf::Vector2f(papers[i].boundingBox[2], papers[i].boundingBox[0])};
+	//	std::array<sf::Vector2f, 3> bottomLeftTri = { papers[i].orderedVertices[1], papers[i].orderedVertices[3], sf::Vector2f(papers[i].boundingBox[1], papers[i].boundingBox[3])};
+	//	std::array<sf::Vector2f, 3> bottomRightTri = { papers[i].orderedVertices[3], papers[i].orderedVertices[2], sf::Vector2f(papers[i].boundingBox[2], papers[i].boundingBox[3])};
+
+	//	float xDiff = mouseX - papers[i].boundingBox[1];
+	//	float yDiff = mouseY - papers[i].boundingBox[0];
+
+	//	float paperWidth = papers[i].boundingBox[2] - papers[i].boundingBox[1];
+	//	float paperHeight = papers[i].boundingBox[3] - papers[i].boundingBox[0];
+
+	//	if (i == papers.size() - 1) {
+	//		std::cout << "TOP LEFT: (" << topLeftTri[0].x << ", " << topLeftTri[0].y << "), (" << topLeftTri[1].x << ", " << topLeftTri[1].y << "), (" << topLeftTri[2].x << ", " << topLeftTri[2].y << ")\n";
+	//		std::cout << "TOP RIGHT: (" << topRightTri[0].x << ", " << topRightTri[0].y << "), (" << topRightTri[1].x << ", " << topRightTri[1].y << "), (" << topRightTri[2].x << ", " << topRightTri[2].y << ")\n";
+	//		std::cout << "BOTTOM LEFT: (" << bottomLeftTri[0].x << ", " << bottomLeftTri[0].y << "), (" << bottomLeftTri[1].x << ", " << bottomLeftTri[1].y << "), (" << bottomLeftTri[2].x << ", " << bottomLeftTri[2].y << ")\n";
+	//		std::cout << "BOTTOM RIGHT: (" << bottomRightTri[0].x << ", " << bottomRightTri[0].y << "), (" << bottomRightTri[1].x << ", " << bottomRightTri[1].y << "), (" << bottomRightTri[2].x << ", " << bottomRightTri[2].y << ")\n";
+	//		std::cout << "MOUSE: " << mouseX << ", " << mouseY << '\n';
+	//	}
+	//	if (xDiff > 0.f && xDiff <= paperWidth) {
+	//		if (i == papers.size() - 1) { std::cout << "0\n"; }
+
+	//		if (yDiff >= 0.f && yDiff <= paperHeight) {
+	//			if (i == papers.size() - 1) { std::cout << "1\n"; }
+
+	//			if (abs(papers[i].rotation) >= 5.f) {
+	//				if (!triangleCollide(topLeftTri, sf::Vector2f(mouseX, mouseY))) {
+	//					if (i == papers.size() - 1) { std::cout << "2\n"; }
+
+	//					if (!triangleCollide(topRightTri, sf::Vector2f(mouseX, mouseY))) {
+	//						if (i == papers.size() - 1) { std::cout << "3\n"; }
+
+	//						if (!triangleCollide(bottomLeftTri, sf::Vector2f(mouseX, mouseY))) {
+	//							if (i == papers.size() - 1) { std::cout << "4\n"; }
+
+	//							if (!triangleCollide(bottomRightTri, sf::Vector2f(mouseX, mouseY))) {
+	//								if (i == papers.size() - 1) { std::cout << "5\n"; }
+
+	//								return &papers[i];
+	//							}
+	//						}
+	//					}
+	//				}
+	//			}
+	//			else {
+	//				return &papers[i];
+	//			}
+	//		}
+	//	}
+	//	else {
+	//		if (i == papers.size() - 1) { std::cout << "not even\n"; }
+	//	}
+	//}
+
+	//return nullptr;
 }
 
 Being* Level::checkMouseBeingCollision(std::string beingTypeSearch, sf::RenderWindow& window) {

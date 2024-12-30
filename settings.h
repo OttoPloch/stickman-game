@@ -4,6 +4,7 @@
 #include <array>
 #include <SFML/Graphics.hpp>
 #include <iostream>
+#include <cmath>
 
 struct settings {
 	int WINDOW_LENGTH, WINDOW_HEIGHT;
@@ -86,6 +87,8 @@ struct settings {
 	std::map<std::string, std::string> levelFilePaths;	
 
 	float transitionSpeed;
+
+	float paperEraseCircleRad;
 };
 
 void createSettings(settings& settings);

@@ -35,6 +35,8 @@ public:
 
 	void windowResize(sf::Vector2f newDimensions, float defaultCameraSizeMultiplier);
 
+	std::array<sf::Vector2f, 2> getCameraBounds();
+
 	void setDimensions(sf::Vector2f newDimensions, float defaultCameraSizeMultiplier);
 
 	void changeAcceleration(sf::Vector2f amount, bool settingZoomVar);

@@ -139,10 +139,7 @@ void LevelEditor::click(sf::RenderWindow& window, Camera& camera, Paper* collide
 		if (currentEditTool == "paper" && collidedPaper != nullptr) {
 			erasePaper(collidedPaper);
 		}
-		else if (currentEditTool == "enemy_ghoul" && collidedBeing != nullptr) {
-			eraseBeing(collidedBeing);
-		}
-		else if (currentEditTool == "enemy_cube" && collidedBeing != nullptr) {
+		else if (currentEditTool.substr(0, 6) == "enemy_" && collidedBeing != nullptr) {
 			eraseBeing(collidedBeing);
 		}
 	}

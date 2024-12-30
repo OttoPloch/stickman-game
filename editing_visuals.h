@@ -6,6 +6,7 @@
 #include "camera.h"
 #include <map>
 #include <vector>
+#include "camera.h"
 
 class EditingVisuals
 {
@@ -42,18 +43,22 @@ public:
 
 	EditingVisuals();
 
-	EditingVisuals(std::array<sf::Vector2u, 4> paperTexCoords, std::map<std::string, AssetManager> textures);
+	EditingVisuals(std::array<sf::Vector2u, 4> paperTexCoords, std::map<std::string, AssetManager> textures, Camera& camera);
 
-	void create(std::array<sf::Vector2u, 4> paperTexCoords, std::map<std::string, AssetManager> textures);
+	void create(std::array<sf::Vector2u, 4> paperTexCoords, std::map<std::string, AssetManager> textures, Camera& camera);
 
 	void clearDraws();
 
 	void addItemToDraw(std::string itemType);
 
-	void addXToDraw(sf::Vector2f pos);
+	void addXToDraw(sf::Vector2f pos, settings& settings);
 
 	void updateAndDraw(sf::RenderWindow& window, Camera& camera, std::string currentEditTool, sf::Vector2i paperDimensions, float paperRotation, bool erasing);
 private:
 	sf::Vector2f worldMousePos;
+
+	std::array<sf::Vector2f, 2> cameraBounds;
+
+	sf::RectangleShape levelSizeRect;
 };
 

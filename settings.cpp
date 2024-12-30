@@ -63,7 +63,7 @@ void createSettings(settings& settings) {
 		{"enemy_cube", {350.f, 650.f, 800.f}}
 	};
 
-	settings.levels = 2;
+	settings.levels = 4;
 	settings.levelIndex = 1;
 
 	settings.levelFilePaths = {
@@ -75,6 +75,8 @@ void createSettings(settings& settings) {
 	};
 
 	settings.transitionSpeed = 225.f;
+
+	settings.paperEraseCircleRad = 50.f;
 }
 
 void adjustWindowSettings(settings& settings, int newWindowLength, int newWindowHeight, sf::Vector2f worldSize) {

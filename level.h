@@ -79,7 +79,7 @@ public:
 
 	void drawBackground(sf::RenderWindow& window);
 
-	void draw(sf::RenderWindow& window, float dt, bool& editing);
+	void draw(sf::RenderWindow& window, float dt, bool& editing, settings& settings);
 
 	void updateAndDrawTransitionRect(sf::RenderWindow& window, float dt);
 
@@ -91,7 +91,7 @@ public:
 
 	void transitionStep(float dt);
 
-	Paper* checkMousePaperCollision(sf::RenderWindow& window);
+	Paper* checkMousePaperCollision(sf::RenderWindow& window, settings& settings);
 
 	Being* checkMouseBeingCollision(std::string beingTypeSearch, sf::RenderWindow& window);
 private:

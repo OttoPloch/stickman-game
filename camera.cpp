@@ -111,6 +111,10 @@ void Camera::windowResize(sf::Vector2f newDimensions, float defaultCameraSizeMul
 	setDimensions(newDimensions, defaultCameraSizeMultiplier);
 }
 
+std::array<sf::Vector2f, 2> Camera::getCameraBounds() {
+	return { minPos, maxPos };
+}
+
 void Camera::setDimensions(sf::Vector2f newDimensions, float defaultCameraSizeMultiplier) {
 	view.setSize(newDimensions.x * defaultCameraSizeMultiplier, newDimensions.y * defaultCameraSizeMultiplier);
 	targetSize = view.getSize();

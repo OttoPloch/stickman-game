@@ -2,11 +2,11 @@
 
 EditingVisuals::EditingVisuals() {}
 
-EditingVisuals::EditingVisuals(std::array<sf::Vector2u, 4> paperTexCoords, std::map<std::string, AssetManager> textures) {
-	create(paperTexCoords, textures);
+EditingVisuals::EditingVisuals(std::array<sf::Vector2u, 4> paperTexCoords, std::map<std::string, AssetManager> textures, Camera& camera) {
+	create(paperTexCoords, textures, camera);
 }
 
-void EditingVisuals::create(std::array<sf::Vector2u, 4> paperTexCoords, std::map<std::string, AssetManager> textures) {
+void EditingVisuals::create(std::array<sf::Vector2u, 4> paperTexCoords, std::map<std::string, AssetManager> textures, Camera& camera) {
 	this->paperTexCoords = paperTexCoords;
 	
 	paperVertices[0] = sf::Vertex(sf::Vector2f(0, 0), sf::Vector2f(paperTexCoords[0].x, paperTexCoords[0].y));
@@ -38,7 +38,16 @@ void EditingVisuals::create(std::array<sf::Vector2u, 4> paperTexCoords, std::map
 	XTexture.loadFromFile("./x mark.png");
 
 	pencilSprite.setTexture(pencilTexture);
+	pencilSprite.setScale(1.5f, 1.5f);
 	pencilSprite.setOrigin(pencilSprite.getLocalBounds().width / 2.f, pencilSprite.getLocalBounds().height / 2.f);
+
+	cameraBounds = camera.getCameraBounds();
+
+	levelSizeRect.setSize(sf::Vector2f(abs(cameraBounds[1].x - cameraBounds[0].x), abs(cameraBounds[1].y - abs(cameraBounds[0].y))));
+	levelSizeRect.setPosition(cameraBounds[0]);
+	levelSizeRect.setFillColor(sf::Color::Transparent);
+	levelSizeRect.setOutlineColor(sf::Color::Cyan);
+	levelSizeRect.setOutlineThickness(10.f);
 }
 
 void EditingVisuals::clearDraws() {
@@ -78,11 +87,12 @@ void EditingVisuals::addItemToDraw(std::string itemType) {
 	}
 }
 
-void EditingVisuals::addXToDraw(sf::Vector2f pos) {
+void EditingVisuals::addXToDraw(sf::Vector2f pos, settings& settings) {
 	xSprites.push_back(sf::Sprite(XTexture));
 
 	sf::Sprite* currentX = &xSprites[xSprites.size() - 1];
 
+	currentX->setScale(settings.paperEraseCircleRad * 2.f / currentX->getLocalBounds().width, settings.paperEraseCircleRad * 2.f / currentX->getLocalBounds().height);
 	currentX->setOrigin(currentX->getLocalBounds().width / 2.f, currentX->getLocalBounds().height / 2.f);
 	currentX->setPosition(pos);
 	currentX->setColor(sf::Color(255, 255, 255, 180));
@@ -91,6 +101,8 @@ void EditingVisuals::addXToDraw(sf::Vector2f pos) {
 void EditingVisuals::updateAndDraw(sf::RenderWindow& window, Camera& camera, std::string currentEditTool, sf::Vector2i paperDimensions, float paperRotation, bool erasing) {
 	worldMousePos.x = (int)camera.getTopLeft().x + ((float)sf::Mouse::getPosition(window).x / window.getSize().x * 1.f) * camera.view.getSize().x;
 	worldMousePos.y = (int)camera.getTopLeft().y + ((float)sf::Mouse::getPosition(window).y / window.getSize().y * 1.f) * camera.view.getSize().y;
+
+	window.draw(levelSizeRect);
 
 	if (ghostPaperVertices.size() > 0) {
 		window.draw(&ghostPaperVertices[0], ghostPaperVertices.size(), sf::Quads, ghostPaperStates);

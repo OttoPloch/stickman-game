@@ -2,17 +2,29 @@
 #include <SFML/Graphics.hpp>
 #include <array>
 #include "get_pos_from_raycast.h"
+#include <iostream>
 
 class BackgroundObject
 {
 public:
 	std::array<sf::Vertex, 4> vertices;
 
+	std::array<sf::Vertex, 4> unrotatedVertices;
+
 	sf::Vector2f dimensions;
 
 	sf::Vector2f pos;
 
+	// top, left, right, bottom
+	//std::array<float, 4> boundingBox;
+
+	//std::array<sf::Vector2f, 4> orderedVertices;
+
 	float width;
+
+	float height;
+
+	float yRatio;
 
 	float rotation;
 
